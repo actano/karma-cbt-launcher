@@ -1,0 +1,38 @@
+{
+  "name": "karma-cbt-launcher",
+  "version": "0.0.4",
+  "description": "Karma Browser Launcher for browsers on CrossBrowserTesting",
+  "main": "lib/index.js",
+  "module": "src/index.js",
+  "repository": "actano/karma-cbt-launcher",
+  "author": "Marcus Mennemeier <marcus.mennemeier@actano.de>",
+  "license": "MIT",
+  "keywords": [
+    "karma-launcher"
+  ],
+  "devDependencies": {
+    "babel-plugin-external-helpers": "^6.22.0",
+    "babel-preset-latest": "^6.24.0",
+    "eslint": "^3.18.0",
+    "eslint-config-actano": "^6.0.0",
+    "eslint-plugin-import": "^2.2.0",
+    "eslint-plugin-jsx-a11y": "^4.0.0",
+    "eslint-plugin-react": "^6.10.0",
+    "rollup": "^0.41.6",
+    "rollup-plugin-babel": "^2.7.1"
+  },
+  "engines": {
+    "node": ">=6.0.0",
+    "yarn": "*"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "build": "rollup -c",
+    "prepublish": "yarn run build"
+  },
+  "dependencies": {
+    "cbt_tunnels": "^0.0.34",
+    "es6-promisify": "^5.0.0",
+    "selenium-webdriver": "^3.3.0"
+  }
+}

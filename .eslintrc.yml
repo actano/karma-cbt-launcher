@@ -1,0 +1,5 @@
+root: true
+extends: actano
+globals:
+    emit: false
+

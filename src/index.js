@@ -108,6 +108,10 @@ class CBTInstance {
   }
 }
 
+process.on('beforeExit', () => {
+  cbt.stop() // cbt.stop() makes async calls, so we have to use beforeExit()
+})
+
 const factory = (...args) => new CBTInstance(...args)
 
 factory.$inject = ['baseBrowserDecorator', 'args', 'logger']

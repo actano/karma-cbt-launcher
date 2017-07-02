@@ -1,6 +1,6 @@
 {
   "name": "karma-cbt-launcher",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Karma Browser Launcher for browsers on CrossBrowserTesting",
   "main": "lib/index.js",
   "module": "src/index.js",

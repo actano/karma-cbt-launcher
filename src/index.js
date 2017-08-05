@@ -9,6 +9,7 @@ const cbtStart = promisify(cbt.start)
 const remoteHub = 'http://hub.crossbrowsertesting.com:80/wd/hub'
 const username = process.env.CBT_USERNAME
 const authkey = process.env.CBT_AUTHKEY
+const tunnelName = process.env.CBT_TUNNEL_NAME
 
 // Handle x-ua-compatible option same as karma-ie-launcher(copy&paste):
 //
@@ -58,7 +59,7 @@ class CBTInstance {
     this.log.info('WebDriver config: %s', JSON.stringify(spec))
     spec.username = username
     spec.password = authkey
-    spec.tunnel_name = `karma-tunnel-${Math.random().toString(36).slice(2)}`
+    spec.tunnel_name = tunnelName || `karma-tunnel-${Math.random().toString(36).slice(2)}`
     this.spec = spec
   }
 

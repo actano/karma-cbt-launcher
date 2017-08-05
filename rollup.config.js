@@ -9,4 +9,5 @@ export default {
     }),
   ],
   dest: 'lib/index.js',
+  external: ['url', 'selenium-webdriver', 'cbt_tunnels', 'es6-promisify'],
 }

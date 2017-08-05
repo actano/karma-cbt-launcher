@@ -27,7 +27,7 @@
   "scripts": {
     "lint": "eslint .",
     "build": "rollup -c",
-    "prepublish": "yarn run build"
+    "prepublishOnly": "yarn run build"
   },
   "dependencies": {
     "cbt_tunnels": "^0.1.0",

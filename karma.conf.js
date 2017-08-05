@@ -1,6 +1,3 @@
-require("babel-core/register")
-require("babel-polyfill")
-
 module.exports = (config) => {
   config.set({
     frameworks: ['mocha'],

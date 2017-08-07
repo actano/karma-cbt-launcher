@@ -6,16 +6,22 @@ export default {
   entry: 'src/index.js',
   format: 'cjs',
   plugins: [
-    babel({
-      runtimeHelpers: true,
-      exclude: 'node_modules/**', // only transpile our source code
-    }),
     commonjs(),
     resolve({
       main: true,
       jsnext: true,
+      preferBuiltins: false,
+    }),
+
+    babel({
+      runtimeHelpers: true,
+      exclude: 'node_modules/**', // only transpile our source code
     }),
   ],
   dest: 'lib/index.js',
-  external: ['selenium-webdriver', 'cbt_tunnels'],
+  external: [
+    'url', 'os', 'path', 'fs', 'child_process',
+    'selenium-webdriver',
+  ],
+  sourceMap: true,
 }

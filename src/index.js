@@ -1,15 +1,9 @@
 // code mainly based on karma-webdriver-launcher
 
 import { parse as urlparse, format as urlformat } from 'url'
-import { Builder } from 'selenium-webdriver'
-import cbt from 'cbt_tunnels'
-import promisify from 'es6-promisify'
+import createSession, { setLogger } from './session'
 
-const cbtStart = promisify(cbt.start)
-const remoteHub = 'http://hub.crossbrowsertesting.com:80/wd/hub'
-const username = process.env.CBT_USERNAME
-const authkey = process.env.CBT_AUTHKEY
-const tunnelName = process.env.CBT_TUNNEL_NAME
+let log = null
 
 // Handle x-ua-compatible option same as karma-ie-launcher(copy&paste):
 //
@@ -18,7 +12,6 @@ const tunnelName = process.env.CBT_TUNNEL_NAME
 //     IE9: {
 //       base: 'WebDriver',
 //       config: webdriverConfig,
-//       browserName: 'internet explorer',
 //       'x-ua-compatible': 'IE=EmulateIE9'
 //     }
 //   }
@@ -26,96 +19,108 @@ const tunnelName = process.env.CBT_TUNNEL_NAME
 // This is done by passing the option on the url, in response the Karma server will
 // set the following meta in the page.
 //   <meta http-equiv="X-UA-Compatible" content="[VALUE]"/>
+const XUA = 'x-ua-compatible'
+
 function handleXUaCompatible(args, urlObj) {
-  if (args['x-ua-compatible']) {
-    const q = urlObj.query
-    q['x-ua-compatible'] = args['x-ua-compatible']
+  if (args[XUA]) {
+    const q = urlObj.query || {}
+    const query = { ...q, [XUA]: args[XUA] }
+    return { ...urlObj, query }
   }
+  return urlObj
 }
 
-class CBTInstance {
-  constructor(baseBrowserDecorator, args, logger) {
-    this.log = logger.create('CrossBrowserTesting')
+function handleTunnelHost(urlObj) {
+  // use special hostname for tunnel
+  const result = { ...urlObj, hostname: 'local' }
+  delete result.host
+  delete result.search // url.format does not want search attribute
+  return result
+}
 
-    baseBrowserDecorator(this)
-    this._start = CBTInstance.prototype._start
-
-    const spec = Object.assign({
-      name: 'Karma test',
-      build: '',
-    }, args)
-
-    if (!spec.browserName) {
-      throw new Error('browserName is required!')
-    }
-    this.name = `${spec.browserName} via CrossBrowserTesting`
-    delete spec.base
-    delete spec.config
-
-    for (const key of ['pseudoActivityInterval']) {
-      this[key] = spec[key]
-      delete spec[key]
-    }
-    this.log.info('WebDriver config: %s', JSON.stringify(spec))
-    spec.username = username
-    spec.password = authkey
-    spec.tunnel_name = tunnelName || `karma-tunnel-${Math.random().toString(36).slice(2)}`
-    this.spec = spec
+const factory = (logger, baseBrowserDecorator, args) => {
+  if (!log) {
+    log = logger.create('cbt-browser')
+    setLogger(logger)
   }
 
-  async _start(url) {
-    const urlObj = urlparse(url, true)
-    handleXUaCompatible(this.spec, urlObj)
+  const spec = { name: 'Karma test', build: '', ...args }
+  const pseudoActivityInterval = spec.pseudoActivityInterval
+  delete spec.base
+  delete spec.config
+  delete spec.pseudoActivityInterval
 
-    // use special hostname for tunnel
-    delete urlObj.host
-    urlObj.hostname = 'local'
+  let kill = null
 
-    delete urlObj.search // url.format does not want search attribute
+  const browser = {}
+  baseBrowserDecorator(browser)
+  browser.name = `${spec.browser_api_name} on ${spec.os_api_name} (${spec.screen_resolution}) via CrossBrowserTesting`
 
-    this.log.debug(`Browser capabilities: ${JSON.stringify(this.spec)}`)
+  const start = async (id, url) => {
+    let cbtSession = null
+    let driver = null
+    let interval = false
 
-    await cbtStart({ username, authkey, tunnelname: this.spec.tunnel_name })
-    const driver = new Builder()
-      .usingServer(remoteHub)
-      .withCapabilities(this.spec)
-      .build()
-
-    const session = await driver.getSession()
-    this.sessionId = session.id_ // need for API calls
-    const interval = this.pseudoActivityInterval && setInterval(() => {
-      this.log.debug('Imitate activity')
-      driver.getTitle()
-    }, this.pseudoActivityInterval)
-
-    driver.get(urlformat(urlObj))
-    let quitCalled = false
-    const kill = async () => {
-      if (!quitCalled) {
-        quitCalled = true
-        if (interval) {
-          clearInterval(interval)
-        }
-        if (driver.getSession()) {
-          await driver.quit()
-          this.log.info(`Killed ${this.name}.`)
-        }
-        cbt.stop()
+    const stop = async () => {
+      const promises = []
+      if (cbtSession) {
+        promises.push(cbtSession.stop())
       }
+      if (interval) {
+        clearInterval(interval)
+      }
+      if (driver && driver.getSession()) {
+        log.debug('Quitting selenium')
+        promises.push(driver.quit())
+      }
+      await Promise.all(promises)
     }
-    this._process = { kill }
-    // We can't really force browser to quit so just avoid warning about SIGKILL
-    this._onKillTimeout = () => null
+
+    try {
+      cbtSession = await createSession(id)
+      driver = cbtSession.newBuilder(spec).build()
+
+      interval = pseudoActivityInterval && setInterval(() => {
+        log.debug('Imitate activity')
+        driver.getTitle()
+      }, pseudoActivityInterval)
+
+      driver.get(url)
+
+      return stop
+    } catch (e) {
+      log.error('Error starting %s', browser.name, e)
+      await stop()
+      return async () => {}
+    }
   }
+
+  browser._start = (url) => {
+    log.info('Connecting to %s', browser.name)
+    const _url = urlformat(handleTunnelHost(handleXUaCompatible(spec, urlparse(url, true))))
+    kill = start(browser.id, _url)
+  }
+
+  browser.on('kill', async (done) => {
+    if (!kill) {
+      done()
+      return
+    }
+    try {
+      log.debug('Killing %s', browser.name)
+      const stop = await kill
+      await stop()
+      done()
+      log.info('Killed %s.', browser.name)
+    } catch (e) {
+      done(e)
+    }
+  })
+
+  return browser
 }
 
-process.on('beforeExit', () => {
-  cbt.stop() // cbt.stop() makes async calls, so we have to use beforeExit()
-})
-
-const factory = (...args) => new CBTInstance(...args)
-
-factory.$inject = ['baseBrowserDecorator', 'args', 'logger']
+factory.$inject = ['logger', 'baseBrowserDecorator', 'args']
 
 export default {
   'launcher:CrossBrowserTesting': ['factory', factory],

@@ -110,7 +110,7 @@ export async function startTunnel() {
   if (current) {
     return
   }
-  log.info('Starting tunnel')
+  log.info('Starting tunnel %s', tunnelname)
   state = forkProcess()
   await state
 }

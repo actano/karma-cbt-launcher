@@ -7,10 +7,20 @@ import promisify from 'es6-promisify'
 const cmd = require.resolve('cbt_tunnels/cmd_start')
 const mkdtemp = promisify(fs.mkdtemp)
 
-const ILLEGAL = /[^a-zA-Z0-9-_]/g
+const makeTunnelName = () => {
+  const ILLEGAL = /[^a-zA-Z0-9-_]/g
+
+  let name = process.env.CBT_TUNNEL_NAME
+  if (!name) {
+    name = `karma-${new Date().toISOString()}-${Math.random().toString(36).slice(2)}`
+  }
+  name = name.replace(ILLEGAL, '-')
+  return name.substring(0, 45)
+}
+
 export const username = process.env.CBT_USERNAME
 export const authkey = process.env.CBT_AUTHKEY
-export const tunnelname = (process.env.CBT_TUNNEL_NAME || `karma-${new Date().toISOString()}-${Math.random().toString(36).slice(2)}`).replace(ILLEGAL, '-')
+export const tunnelname = makeTunnelName()
 
 // resolves falsy if stopped, resolves to a stopFunction if started
 

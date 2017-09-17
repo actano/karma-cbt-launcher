@@ -3,6 +3,7 @@ import { join } from 'path'
 import fs from 'fs'
 import { fork } from 'child_process'
 import promisify from 'es6-promisify'
+import consoleLogger from './console-logger'
 
 const cmd = require.resolve('cbt_tunnels/cmd_start')
 const mkdtemp = promisify(fs.mkdtemp)
@@ -25,7 +26,7 @@ export const tunnelname = makeTunnelName()
 // resolves falsy if stopped, resolves to a stopFunction if started
 
 let state = Promise.resolve()
-let log = null
+let log = consoleLogger('cbt-tunnel')
 
 export const setLogger = (logger) => {
   log = logger.create('cbt-tunnel')
@@ -106,8 +107,11 @@ async function forkProcess() {
 }
 
 export async function startTunnel() {
-  const current = await state
-  if (current) {
+  // TODO find a better race-condition-fix
+  await new Promise((resolve) => {
+    setTimeout(resolve, Math.random() * 100)
+  })
+  if (await state) {
     return
   }
   log.info('Starting tunnel %s', tunnelname)

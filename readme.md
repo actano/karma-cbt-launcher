@@ -31,3 +31,7 @@ To give your tests beautiful names in CBT UI:
 
 * Creates a unnamed tunnel to CBT
 * Starts browser on CBT and connects them to karma through tunnel
+
+## cbt_tunnels version
+
+* cbt_tunnels 0.2.0 casts command-line agument to `--ready` to boolean, then throwing an exception that it expects a string as pathname

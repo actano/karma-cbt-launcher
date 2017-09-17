@@ -1,12 +1,13 @@
 import { Builder } from 'selenium-webdriver'
 
 import { username, authkey, tunnelname, startTunnel, stopTunnel, setLogger as setTunnelLogger } from './tunnel'
+import consoleLogger from './console-logger'
 
 const activeSessions = []
 
 const remoteHub = 'http://hub.crossbrowsertesting.com:80/wd/hub'
 
-let log = null
+let log = consoleLogger('cbt-session')
 
 export const setLogger = (logger) => {
   log = logger.create('cbt-session')

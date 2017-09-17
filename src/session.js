@@ -1,5 +1,3 @@
-import { Builder } from 'selenium-webdriver'
-
 import { username, authkey, tunnelname, startTunnel, stopTunnel, setLogger as setTunnelLogger } from './tunnel'
 import consoleLogger from './console-logger'
 
@@ -33,12 +31,13 @@ export default async (id) => {
         await stopTunnel()
       }
     },
-    newBuilder(capabilities) {
-      log.debug('Creating selenium builder for %s', JSON.stringify(capabilities))
-      const spec = { ...capabilities, username, password: authkey, tunnel_name: tunnelname }
-      return new Builder()
-        .usingServer(remoteHub)
-        .withCapabilities(spec)
+    configureBuilder(builder) {
+      log.debug('Configuring selenium builder for %s', JSON.stringify(builder.getCapabilities()))
+      const caps = builder.usingServer(remoteHub).getCapabilities()
+      caps.set('username', username)
+      caps.set('password', authkey)
+      caps.set('tunnel_name', tunnelname)
+      return builder
     },
   }
 }

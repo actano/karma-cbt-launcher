@@ -1,5 +1,6 @@
 // code mainly based on karma-webdriver-launcher
 
+import { Builder } from 'selenium-webdriver'
 import { parse as urlparse, format as urlformat } from 'url'
 import createSession, { setLogger } from './session'
 import consoleLogger from './console-logger'
@@ -81,7 +82,7 @@ const factory = (logger, baseBrowserDecorator, args) => {
 
     try {
       cbtSession = await createSession(id)
-      driver = cbtSession.newBuilder(spec).build()
+      driver = cbtSession.configureBuilder(new Builder().withCapabilities(spec)).build()
 
       interval = pseudoActivityInterval && setInterval(() => {
         log.debug('Imitate activity')

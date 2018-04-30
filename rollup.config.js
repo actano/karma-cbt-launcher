@@ -7,6 +7,7 @@ export default {
   output: {
     file: 'lib/index.js',
     format: 'cjs',
+    sourcemap: true,
   },
   plugins: [
     commonjs(),
@@ -25,5 +26,4 @@ export default {
     'url', 'os', 'path', 'fs', 'child_process',
     'selenium-webdriver',
   ],
-  sourcemap: true,
 }

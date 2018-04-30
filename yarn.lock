@@ -876,7 +876,7 @@ caseless@~0.12.0:
   version "0.12.0"
   resolved "https://registry.yarnpkg.com/caseless/-/caseless-0.12.0.tgz#1b681c21ff84033c826543090689420d187151dc"
 
-cbt_tunnels@0.1.0:
+cbt_tunnels@^0.1.0:
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/cbt_tunnels/-/cbt_tunnels-0.1.0.tgz#63b0ea3afa514387856ac620a28951439f2fadd9"
   dependencies:

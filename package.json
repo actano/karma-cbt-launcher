@@ -41,7 +41,7 @@
     "test": "yarn run build && karma start --singleRun --browsers win7_ie11,win10_edge15"
   },
   "dependencies": {
-    "cbt_tunnels": "^0.1.0"
+    "cbt_tunnels": "^0.9.3"
   },
   "peerDependencies": {
     "selenium-webdriver": "^2.0.0 || ^3.0.0"

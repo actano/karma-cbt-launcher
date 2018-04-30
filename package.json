@@ -8,7 +8,9 @@
   "author": "Marcus Mennemeier <marcus.mennemeier@actano.de>",
   "license": "MIT",
   "keywords": [
-    "karma-launcher"
+    "karma-plugin",
+    "karma-launcher",
+    "cbt"
   ],
   "devDependencies": {
     "babel-core": "^6.26.3",
@@ -19,7 +21,7 @@
     "eslint": "^4.19.1",
     "eslint-config-actano-base": "^3.0.0",
     "eslint-plugin-import": "^2.11.0",
-    "karma": "^1.7.0",
+    "karma": "^2.0.2",
     "karma-mocha": "^1.3.0",
     "mocha": "^5.1.1",
     "rollup": "^0.58.2",

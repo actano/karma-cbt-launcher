@@ -1,6 +1,6 @@
 {
   "name": "@rplan/karma-cbt-launcher",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Karma Browser Launcher for browsers on CrossBrowserTesting",
   "main": "lib/index.js",
   "module": "src/index.js",

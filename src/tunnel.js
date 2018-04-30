@@ -2,7 +2,7 @@ import { tmpdir } from 'os'
 import { join } from 'path'
 import fs from 'fs'
 import { fork } from 'child_process'
-import promisify from 'es6-promisify'
+import { promisify } from 'es6-promisify'
 import consoleLogger from './console-logger'
 
 const cmd = require.resolve('cbt_tunnels/cmd_start')

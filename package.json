@@ -15,7 +15,7 @@
     "babel-plugin-transform-runtime": "^6.23.0",
     "babel-preset-env": "^1.6.1",
     "babel-preset-stage-3": "^6.24.1",
-    "es6-promisify": "^5.0.0",
+    "es6-promisify": "^6.0.0",
     "eslint": "^4.19.1",
     "eslint-config-actano-base": "^3.0.0",
     "eslint-plugin-import": "^2.11.0",
